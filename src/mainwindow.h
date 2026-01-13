@@ -40,6 +40,8 @@ private slots:
 private:
     void updateUIState();
     quint16 getRandomPort();
+    void saveConnectionSettings();
+    void loadConnectionSettings();
     
     Ui::MainWindow *ui;
     AudioEngine *m_audioEngine;

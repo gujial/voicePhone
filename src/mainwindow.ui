@@ -31,7 +31,7 @@
        <item row="0" column="1">
         <widget class="QLineEdit" name="serverIpEdit">
          <property name="placeholderText">
-          <string>127.0.0.1</string>
+          <string>Enter server</string>
          </property>
         </widget>
        </item>

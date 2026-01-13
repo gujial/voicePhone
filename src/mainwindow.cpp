@@ -9,6 +9,7 @@
 #include <QRandomGenerator>
 #include <QListWidgetItem>
 #include <QTimer>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -20,9 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // 设置默认值
-    ui->serverIpEdit->setText("127.0.0.1");
-    ui->serverPortEdit->setText("8888");
+    // 加载保存的连接设置
+    loadConnectionSettings();
 
     // 连接信号
     connect(ui->connectButton, &QPushButton::clicked, this, &MainWindow::onConnectClicked);
@@ -151,6 +151,9 @@ void MainWindow::onLoginSuccess(quint16 voicePort)
 {
     ui->statusLabel->setText("Status: Logged in - Select a channel");
     
+    // 保存连接设置
+    saveConnectionSettings();
+    
     // 设置音频引擎的加密密钥
     QByteArray sessionKey = m_networkClient->getSessionKey();
     if (!sessionKey.isEmpty()) {
@@ -274,4 +277,37 @@ quint16 MainWindow::getRandomPort()
 {
     // 生成 49152-65535 之间的随机端口
     return 49152 + QRandomGenerator::global()->bounded(16384);
+}
+
+void MainWindow::saveConnectionSettings()
+{
+    QSettings settings("VoicePhone", "VoicePhone");
+    
+    settings.beginGroup("Connection");
+    settings.setValue("serverIp", ui->serverIpEdit->text());
+    settings.setValue("serverPort", ui->serverPortEdit->text());
+    settings.setValue("username", ui->usernameEdit->text());
+    settings.endGroup();
+    
+    qInfo() << "Connection settings saved";
+}
+
+void MainWindow::loadConnectionSettings()
+{
+    QSettings settings("VoicePhone", "VoicePhone");
+    
+    settings.beginGroup("Connection");
+    QString serverIp = settings.value("serverIp", "").toString();
+    QString serverPort = settings.value("serverPort", "8888").toString();
+    QString username = settings.value("username", "").toString();
+    settings.endGroup();
+    
+    // 填充UI输入框
+    ui->serverIpEdit->setText(serverIp);
+    ui->serverPortEdit->setText(serverPort);
+    ui->usernameEdit->setText(username);
+    
+    if (!serverIp.isEmpty() && !username.isEmpty()) {
+        qInfo() << "Connection settings loaded for user:" << username;
+    }
 }
