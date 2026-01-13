@@ -134,32 +134,6 @@ cmake --build .
 
 // 错误消息
 {"type": "error", "message": "错误描述户名"}
-├── server.cpp      # 服务器实现
-│   ├── userdatabase.h  # 用户数据库管理
-│   └── userdatabase.cpp
-├── client/             # 客户端网络层
-│   ├── networkclient.h # 网络客户端头文件
-│   └── networkclient.cpp
-├── src/                # 客户端 UI 和音频
-│   ├── main.cpp        # 客户端主程序
-│   ├── mainwindow.h/cpp/ui # 主窗口
-│   ├── audioengine.h/cpp   # 音频引擎
-│   ├── opuscodec.h/cpp     # Opus编解码器
-│   └── crypto.h/cpp        # 加密工具类
-├── server/              # 服务器代码
-│   ├── main.cpp        # 服务器主程序
-│   ├── server.h        # 服务器类头文件
-│   └── server.cpp      # 服务器实现
-├── client/             # 客户端网络层
-│   ├── networkclient.h # 网络客户端头文件
-│   └── networkclient.cpp
-├── src/                # 客户端 UI 和音频
-│   ├── main.cpp        # 客户端主程序
-│   ├── mainwindow.h/cpp/ui # 主窗口
-│   ├── audioengine.h/cpp   # 音频引擎
-│   └── opuscodec.h/cpp     # Opus编解码器
-├─持久化存储（用户数据目前存储在内存中）
-- 密钥管理（当前使用简化的会话密钥方案）
 ```
 
 ### 已实现特性
