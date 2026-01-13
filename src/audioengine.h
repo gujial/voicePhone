@@ -1,0 +1,40 @@
+#ifndef AUDIOENGINE_H
+#define AUDIOENGINE_H
+
+#include <QObject>
+#include <QHostAddress>
+
+class QAudioInput;
+class QAudioOutput;
+class QAudioSink;
+class QAudioSource;
+class QUdpSocket;
+class QIODevice;
+
+class AudioEngine : public QObject
+{
+    Q_OBJECT
+public:
+    explicit AudioEngine(QObject *parent = nullptr);
+    ~AudioEngine();
+
+    void start(const QString &serverIp, quint16 voicePort, quint16 localPort);
+    void stop();
+    bool isRunning() const { return m_isRunning; }
+
+private slots:
+    void handleAudioReady();
+    void handleSocketReadyRead();
+
+private:
+    QAudioSource *m_audioSource = nullptr;
+    QAudioSink *m_audioSink = nullptr;
+    QUdpSocket *m_socket = nullptr;
+    QIODevice *m_inputDevice = nullptr;
+    QIODevice *m_outputDevice = nullptr;
+    QHostAddress m_serverAddress;
+    quint16 m_serverPort = 0;
+    bool m_isRunning = false;
+};
+
+#endif // AUDIOENGINE_H

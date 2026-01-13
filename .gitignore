@@ -1,0 +1,11 @@
+build/
+*.user
+*.pro.user
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+*.o
+*.obj
+*.exe
+.vscode/
