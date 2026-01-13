@@ -18,6 +18,8 @@ pkgs.mkShell {
     qt6.qtbase
     qt6.qtmultimedia
     qt6.qtwayland
+
+    libopus
     
     # 开发工具（可选）
     gdb

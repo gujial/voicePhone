@@ -25,6 +25,19 @@
 
 ## 构建与运行
 
+### 依赖项:
+
+- Qt 6 (Core, Widgets, Multimedia, Network)
+- Opus 音频编解码库
+- CMake 3.16+
+- C++17 编译器
+
+### 安装依赖 (Ubuntu/Debian):
+
+```bash
+sudo apt-get install qt6-base-dev qt6-multimedia-dev libopus-dev cmake
+```
+
 ### 使用系统已安装的 Qt6:
 
 ```bash
@@ -61,10 +74,11 @@ cmake --build .
 
 - **语言**: C++17
 - **框架**: Qt 6 (Core, Widgets, Multimedia, Network)
-- **音频格式**: PCM, 48kHz, 单声道, 16-bit
+- **音频编解码**: Opus (24kbps, 48kHz)
+- **音频格式**: PCM, 48kHz, 单声道, 16-bit (编码前/解码后)
 - **通信协议**: 
   - TCP (控制消息，JSON 格式)
-  - UDP (音频数据)
+  - UDP (Opus编码的音频数据)
 
 ## 消息协议
 
@@ -117,7 +131,8 @@ voicePhone/
 ├── src/                # 客户端 UI 和音频
 │   ├── main.cpp        # 客户端主程序
 │   ├── mainwindow.h/cpp/ui # 主窗口
-│   └── audioengine.h/cpp   # 音频引擎
+│   ├── audioengine.h/cpp   # 音频引擎
+│   └── opuscodec.h/cpp     # Opus编解码器
 ├── CMakeLists.txt      # CMake 构建配置
 └── README.md           # 本文件
 ```
@@ -126,13 +141,16 @@ voicePhone/
 
 ⚠️ 这是一个演示级别的实现，未包含以下生产环境所需特性：
 
-- 音频编解码（当前使用原始 PCM）
 - 抖动缓冲（jitter buffer）
 - 带宽控制和自适应比特率
 - NAT 穿透
 - 回声消除
 - 加密和身份验证
 - 持久化存储
+
+### 已实现特性
+
+✅ **音频编解码** - 使用 Opus 编解码器，提供高质量低延迟的音频压缩（24kbps @ 48kHz）
 
 ## 许可证
 

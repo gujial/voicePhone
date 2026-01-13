@@ -8,6 +8,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Multimedia Network)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(OPUS REQUIRED opus)
 
 # 服务器可执行文件
 qt_add_executable(voicephone-server
@@ -29,6 +31,8 @@ qt_add_executable(voicephone
   src/mainwindow.ui
   src/audioengine.cpp
   src/audioengine.h
+  src/opuscodec.cpp
+  src/opuscodec.h
   client/networkclient.cpp
   client/networkclient.h
 )
@@ -37,6 +41,11 @@ target_link_libraries(voicephone PRIVATE
   Qt6::Widgets 
   Qt6::Multimedia 
   Qt6::Network
+  ${OPUS_LIBRARIES}
+)
+
+target_include_directories(voicephone PRIVATE
+  ${OPUS_INCLUDE_DIRS}
 )
 
 # 设置输出目录

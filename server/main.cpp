@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     app.setApplicationVersion("1.0");
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("VoicePhone Server - Discord-like voice chat server");
+    parser.setApplicationDescription("VoicePhone Server");
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         "Control port for client connections (default: 8888)", "port", "8888");
     parser.addOption(controlPortOption);
 
-    QCommandLineOption voicePortOption(QStringList() << "v" << "voice-port",
+    QCommandLineOption voicePortOption(QStringList() << "p" << "voice-port",
         "Voice port for UDP audio (default: 8889)", "port", "8889");
     parser.addOption(voicePortOption);
 

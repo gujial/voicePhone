@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHostAddress>
+#include <QByteArray>
 
 class QAudioInput;
 class QAudioOutput;
@@ -10,6 +11,7 @@ class QAudioSink;
 class QAudioSource;
 class QUdpSocket;
 class QIODevice;
+class OpusCodec;
 
 class AudioEngine : public QObject
 {
@@ -35,6 +37,16 @@ private:
     QHostAddress m_serverAddress;
     quint16 m_serverPort = 0;
     bool m_isRunning = false;
+    
+    // Opus编解码器
+    OpusCodec *m_codec = nullptr;
+    
+    // 音频缓冲区
+    QByteArray m_captureBuffer;  // 捕获的PCM数据缓冲
+    static constexpr int FRAME_SIZE = 960;  // 20ms @ 48kHz
+    static constexpr int SAMPLE_RATE = 48000;
+    static constexpr int CHANNELS = 1;
+    static constexpr int BYTES_PER_FRAME = FRAME_SIZE * CHANNELS * 2; // int16 = 2 bytes
 };
 
 #endif // AUDIOENGINE_H
