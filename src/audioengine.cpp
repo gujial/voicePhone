@@ -1,5 +1,6 @@
 #include "audioengine.h"
 #include "opuscodec.h"
+#include "crypto.h"
 
 #include <QAudioFormat>
 #include <QAudioSink>
@@ -12,6 +13,7 @@
 
 AudioEngine::AudioEngine(QObject *parent)
     : QObject(parent)
+    , m_audioCounter(nullptr)
 {
     m_socket = new QUdpSocket(this);
     m_codec = new OpusCodec();
@@ -26,6 +28,19 @@ AudioEngine::~AudioEngine()
 {
     stop();
     delete m_codec;
+}
+
+void AudioEngine::setEncryptionKey(const QByteArray &key)
+{
+    m_encryptionKey = key;
+    if (!key.isEmpty()) {
+        qInfo() << "Encryption key set for audio engine";
+    }
+}
+
+void AudioEngine::setAudioCounter(quint64 *counter)
+{
+    m_audioCounter = counter;
 }
 
 void AudioEngine::start(const QString &serverIp, quint16 voicePort, quint16 localPort)
@@ -107,8 +122,24 @@ void AudioEngine::handleAudioReady()
         QByteArray encoded = m_codec->encode(frame, FRAME_SIZE);
         
         if (!encoded.isEmpty() && m_serverPort != 0) {
-            // 发送编码后的数据
-            m_socket->writeDatagram(encoded, m_serverAddress, m_serverPort);
+            // 使用频道密钥加密音频数据（端到端加密）
+            if (!m_encryptionKey.isEmpty() && m_audioCounter) {
+                QByteArray encrypted = CryptoUtils::encryptAES_CTR(encoded, m_encryptionKey, *m_audioCounter);
+                if (!encrypted.isEmpty()) {
+                    // 将计数器添加到数据包前面（8字节）
+                    QByteArray packet;
+                    packet.resize(8);
+                    for (int i = 0; i < 8; ++i) {
+                        packet[i] = (*m_audioCounter >> (56 - i * 8)) & 0xFF;
+                    }
+                    packet.append(encrypted);
+                    m_socket->writeDatagram(packet, m_serverAddress, m_serverPort);
+                    (*m_audioCounter)++; // 递增计数器
+                }
+            } else {
+                // 没有加密密钥，发送明文
+                m_socket->writeDatagram(encoded, m_serverAddress, m_serverPort);
+            }
         }
     }
 }
@@ -125,8 +156,22 @@ void AudioEngine::handleSocketReadyRead()
         m_socket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
         
         if (!datagram.isEmpty()) {
+            // 使用频道密钥解密音频数据（端到端加密）
+            QByteArray toDecode = datagram;
+            if (!m_encryptionKey.isEmpty() && datagram.size() > 8) {
+                // 从数据包前8字节提取计数器
+                quint64 counter = 0;
+                for (int i = 0; i < 8; ++i) {
+                    counter = (counter << 8) | (static_cast<unsigned char>(datagram[i]));
+                }
+                
+                // 解密剩余数据
+                QByteArray encrypted = datagram.mid(8);
+                toDecode = CryptoUtils::decryptAES_CTR(encrypted, m_encryptionKey, counter);
+            }
+            
             // 使用Opus解码
-            QByteArray decoded = m_codec->decode(datagram, FRAME_SIZE);
+            QByteArray decoded = m_codec->decode(toDecode, FRAME_SIZE);
             
             if (!decoded.isEmpty() && m_outputDevice) {
                 // 播放解码后的PCM数据

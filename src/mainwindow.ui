@@ -66,7 +66,31 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="passwordLabel">
+         <property name="text">
+          <string>Password:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="passwordEdit">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+         <property name="placeholderText">
+          <string>Enter password</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="2" colspan="2">
+        <widget class="QCheckBox" name="registerCheckbox">
+         <property name="text">
+          <string>New User (Register)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QPushButton" name="connectButton">

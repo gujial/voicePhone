@@ -8,14 +8,18 @@
 #include <QSet>
 
 class QTcpSocket;
+class UserDatabase;
 
 struct ClientInfo {
     QTcpSocket *controlSocket = nullptr;
     QString username;
+    QString sessionId;
     QString currentChannel;
     QHostAddress udpAddress;
     quint16 udpPort = 0;
+    quint64 audioCounter = 0; // 用于UDP音频加密的计数器
     bool isConnected = false;
+    bool isAuthenticated = false;
 };
 
 class VoiceServer : public QObject
@@ -37,6 +41,7 @@ private slots:
 private:
     void handleControlMessage(QTcpSocket *socket, const QByteArray &data);
     void sendToClient(QTcpSocket *socket, const QString &message);
+    void sendEncryptedToClient(QTcpSocket *socket, const QString &message);
     void broadcastToChannel(const QString &channel, const QByteArray &message);
     void broadcastToChannel(const QString &channel, const QByteArray &message, QTcpSocket *excludeSocket);
     void broadcastVoiceToChannel(const QString &channel, const QByteArray &audioData, QTcpSocket *sender);
@@ -47,6 +52,9 @@ private:
     QUdpSocket *m_voiceSocket;
     QMap<QTcpSocket*, ClientInfo> m_clients;
     QMap<QString, QSet<QTcpSocket*>> m_channels; // channel -> set of clients
+    QMap<QString, QByteArray> m_channelKeys; // channel -> encryption key
+    QMap<QString, QTcpSocket*> m_sessionToSocket; // sessionId -> socket
+    UserDatabase *m_userDatabase;
     quint16 m_voicePort;
 };
 

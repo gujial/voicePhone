@@ -27,6 +27,7 @@ private slots:
     
     void onServerConnected();
     void onServerDisconnected();
+    void onRegistrationSuccess();
     void onLoginSuccess(quint16 voicePort);
     void onChannelListReceived(const QJsonObject &data);
     void onUserListReceived(const QJsonObject &data);
@@ -45,6 +46,7 @@ private:
     NetworkClient *m_networkClient;
     QString m_currentChannel;
     quint16 m_localVoicePort;
+    quint64 m_audioCounter; // 用于音频加密的计数器
 };
 
 #endif // MAINWINDOW_H

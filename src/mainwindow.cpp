@@ -15,13 +15,13 @@ MainWindow::MainWindow(QWidget *parent)
     , m_audioEngine(new AudioEngine(this))
     , m_networkClient(new NetworkClient(this))
     , m_localVoicePort(0)
+    , m_audioCounter(0)
 {
     ui->setupUi(this);
 
     // 设置默认值
     ui->serverIpEdit->setText("127.0.0.1");
     ui->serverPortEdit->setText("8888");
-    ui->usernameEdit->setText("User" + QString::number(QRandomGenerator::global()->bounded(1000, 9999)));
 
     // 连接信号
     connect(ui->connectButton, &QPushButton::clicked, this, &MainWindow::onConnectClicked);
@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 网络客户端信号
     connect(m_networkClient, &NetworkClient::connected, this, &MainWindow::onServerConnected);
     connect(m_networkClient, &NetworkClient::disconnected, this, &MainWindow::onServerDisconnected);
+    connect(m_networkClient, &NetworkClient::registrationSuccess, this, &MainWindow::onRegistrationSuccess);
     connect(m_networkClient, &NetworkClient::loginSuccess, this, &MainWindow::onLoginSuccess);
     connect(m_networkClient, &NetworkClient::channelListReceived, this, &MainWindow::onChannelListReceived);
     connect(m_networkClient, &NetworkClient::userListReceived, this, &MainWindow::onUserListReceived);
@@ -54,8 +55,9 @@ void MainWindow::onConnectClicked()
     QString serverIp = ui->serverIpEdit->text().trimmed();
     quint16 serverPort = ui->serverPortEdit->text().toUShort();
     QString username = ui->usernameEdit->text().trimmed();
+    QString password = ui->passwordEdit->text();
 
-    if (serverIp.isEmpty() || serverPort == 0 || username.isEmpty()) {
+    if (serverIp.isEmpty() || serverPort == 0 || username.isEmpty() || password.isEmpty()) {
         QMessageBox::warning(this, "Invalid Input", "Please fill in all fields.");
         return;
     }
@@ -95,12 +97,32 @@ void MainWindow::onLeaveChannelClicked()
 
 void MainWindow::onServerConnected()
 {
-    ui->statusLabel->setText("Status: Connected - Logging in...");
+    ui->statusLabel->setText("Status: Connected - Authenticating...");
     
     QString username = ui->usernameEdit->text().trimmed();
+    QString password = ui->passwordEdit->text();
     QString localIp = "0.0.0.0"; // 服务器会使用客户端的实际 IP
     
-    m_networkClient->login(username, localIp, m_localVoicePort);
+    // 检查是否是注册模式
+    if (ui->registerCheckbox->isChecked()) {
+        m_networkClient->registerUser(username, password);
+        // 注册成功后会自动触发登录
+    } else {
+        m_networkClient->login(username, password, localIp, m_localVoicePort);
+    }
+}
+
+void MainWindow::onRegistrationSuccess()
+{
+    ui->statusLabel->setText("Status: Registration successful - Logging in...");
+    QMessageBox::information(this, "Success", "Registration successful! Now logging in...");
+    
+    // 注册成功后自动登录
+    QString username = ui->usernameEdit->text().trimmed();
+    QString password = ui->passwordEdit->text();
+    QString localIp = "0.0.0.0";
+    
+    m_networkClient->login(username, password, localIp, m_localVoicePort);
 }
 
 void MainWindow::onServerDisconnected()
@@ -115,6 +137,15 @@ void MainWindow::onServerDisconnected()
 void MainWindow::onLoginSuccess(quint16 voicePort)
 {
     ui->statusLabel->setText("Status: Logged in - Select a channel");
+    
+    // 设置音频引擎的加密密钥
+    QByteArray sessionKey = m_networkClient->getSessionKey();
+    if (!sessionKey.isEmpty()) {
+        m_audioEngine->setEncryptionKey(sessionKey);
+        m_audioEngine->setAudioCounter(&m_audioCounter);
+        qInfo() << "Encryption enabled for audio";
+    }
+    
     m_networkClient->requestChannelList();
     updateUIState();
 }
@@ -164,7 +195,16 @@ void MainWindow::onUserLeft(const QString &username)
 void MainWindow::onJoinedChannel(const QString &channel)
 {
     m_currentChannel = channel;
+    m_audioCounter = 0; // 重置音频计数器
     ui->statusLabel->setText(QString("Status: Joined channel '%1' - Voice connected").arg(channel));
+    
+    // 设置频道加密密钥到音频引擎
+    QByteArray channelKey = m_networkClient->getChannelKey();
+    if (!channelKey.isEmpty()) {
+        m_audioEngine->setEncryptionKey(channelKey);
+        m_audioEngine->setAudioCounter(&m_audioCounter);
+        qInfo() << "Audio encryption enabled for channel";
+    }
     
     // 启动音频引擎
     QString serverIp = ui->serverIpEdit->text().trimmed();
@@ -194,6 +234,7 @@ void MainWindow::onNetworkError(const QString &error)
 void MainWindow::updateUIState()
 {
     bool connected = m_networkClient->isConnected();
+    bool authenticated = m_networkClient->isAuthenticated();
     bool inChannel = !m_currentChannel.isEmpty();
     
     ui->connectButton->setEnabled(!connected);
@@ -201,10 +242,12 @@ void MainWindow::updateUIState()
     ui->serverIpEdit->setEnabled(!connected);
     ui->serverPortEdit->setEnabled(!connected);
     ui->usernameEdit->setEnabled(!connected);
+    ui->passwordEdit->setEnabled(!connected);
+    ui->registerCheckbox->setEnabled(!connected);
     
-    ui->channelListWidget->setEnabled(connected && !inChannel);
-    ui->joinChannelButton->setEnabled(connected && !inChannel);
-    ui->leaveChannelButton->setEnabled(connected && inChannel);
+    ui->channelListWidget->setEnabled(authenticated && !inChannel);
+    ui->joinChannelButton->setEnabled(authenticated && !inChannel);
+    ui->leaveChannelButton->setEnabled(authenticated && inChannel);
 }
 
 quint16 MainWindow::getRandomPort()

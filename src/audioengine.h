@@ -23,6 +23,10 @@ public:
     void start(const QString &serverIp, quint16 voicePort, quint16 localPort);
     void stop();
     bool isRunning() const { return m_isRunning; }
+    
+    // 设置加密密钥和计数器
+    void setEncryptionKey(const QByteArray &key);
+    void setAudioCounter(quint64 *counter); // 指向MainWindow中的计数器
 
 private slots:
     void handleAudioReady();
@@ -40,6 +44,10 @@ private:
     
     // Opus编解码器
     OpusCodec *m_codec = nullptr;
+    
+    // 加密相关
+    QByteArray m_encryptionKey;
+    quint64 *m_audioCounter = nullptr; // 指向外部计数器
     
     // 音频缓冲区
     QByteArray m_captureBuffer;  // 捕获的PCM数据缓冲

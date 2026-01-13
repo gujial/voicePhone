@@ -7,20 +7,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Multimedia Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Multimedia Network Sql)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(OPUS REQUIRED opus)
+find_package(OpenSSL REQUIRED)
 
 # 服务器可执行文件
 qt_add_executable(voicephone-server
   server/main.cpp
   server/server.cpp
   server/server.h
+  server/userdatabase.cpp
+  server/userdatabase.h
+  src/crypto.cpp
+  src/crypto.h
 )
 
 target_link_libraries(voicephone-server PRIVATE 
   Qt6::Core 
   Qt6::Network
+  Qt6::Sql
+  OpenSSL::SSL
+  OpenSSL::Crypto
 )
 
 # 客户端可执行文件
@@ -33,6 +41,8 @@ qt_add_executable(voicephone
   src/audioengine.h
   src/opuscodec.cpp
   src/opuscodec.h
+  src/crypto.cpp
+  src/crypto.h
   client/networkclient.cpp
   client/networkclient.h
 )
@@ -42,6 +52,8 @@ target_link_libraries(voicephone PRIVATE
   Qt6::Multimedia 
   Qt6::Network
   ${OPUS_LIBRARIES}
+  OpenSSL::SSL
+  OpenSSL::Crypto
 )
 
 target_include_directories(voicephone PRIVATE
