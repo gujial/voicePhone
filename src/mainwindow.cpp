@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QRandomGenerator>
 #include <QListWidgetItem>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -59,6 +60,18 @@ void MainWindow::onConnectClicked()
 
     if (serverIp.isEmpty() || serverPort == 0 || username.isEmpty() || password.isEmpty()) {
         QMessageBox::warning(this, "Invalid Input", "Please fill in all fields.");
+        return;
+    }
+
+    // 如果已连接但未认证，先断开连接
+    if (m_networkClient->isConnected() && !m_networkClient->isAuthenticated()) {
+        m_networkClient->disconnect();
+        // 使用短延迟后重新连接
+        QTimer::singleShot(100, this, [this, serverIp, serverPort]() {
+            m_localVoicePort = getRandomPort();
+            ui->statusLabel->setText("Connecting to server...");
+            m_networkClient->connectToServer(serverIp, serverPort);
+        });
         return;
     }
 
@@ -228,7 +241,14 @@ void MainWindow::onLeftChannel()
 void MainWindow::onNetworkError(const QString &error)
 {
     ui->statusLabel->setText("Status: Error - " + error);
-    QMessageBox::critical(this, "Network Error", error);
+    
+    // 如果是认证相关错误（注册失败或登录失败），断开连接以允许重试
+    if (error.contains("Registration failed") || error.contains("Authentication failed")) {
+        QMessageBox::critical(this, "Error", error);
+        m_networkClient->disconnect();
+    } else {
+        QMessageBox::critical(this, "Network Error", error);
+    }
 }
 
 void MainWindow::updateUIState()
