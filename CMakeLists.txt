@@ -37,6 +37,9 @@ qt_add_executable(voicephone
   ui/mainWindow/mainwindow.cpp
   ui/mainWindow/mainwindow.h
   ui/mainWindow/mainwindow.ui
+  ui/loginWindow/loginDlg.cpp
+  ui/loginWindow/loginDlg.h
+  ui/loginWindow/loginDlg.ui
   src/audioengine.cpp
   src/audioengine.h
   src/opuscodec.cpp

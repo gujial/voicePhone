@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>500</height>
+    <width>578</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,108 +16,9 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QGroupBox" name="connectionGroup">
-      <property name="title">
-       <string>Server Connection</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="serverLabel">
-         <property name="text">
-          <string>Server IP:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="serverIpEdit">
-         <property name="placeholderText">
-          <string>Enter server</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="portLabel">
-         <property name="text">
-          <string>Port:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLineEdit" name="serverPortEdit">
-         <property name="placeholderText">
-          <string>8888</string>
-         </property>
-         <property name="maximumWidth">
-          <number>80</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="usernameLabel">
-         <property name="text">
-          <string>Username:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="usernameEdit">
-         <property name="placeholderText">
-          <string>Enter your name</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="passwordLabel">
-         <property name="text">
-          <string>Password:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="passwordEdit">
-         <property name="echoMode">
-          <enum>QLineEdit::Password</enum>
-         </property>
-         <property name="placeholderText">
-          <string>Enter password</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2" colspan="2">
-        <widget class="QCheckBox" name="registerCheckbox">
-         <property name="text">
-          <string>New User (Register)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QPushButton" name="connectButton">
-           <property name="text">
-            <string>Connect</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="disconnectButton">
-           <property name="text">
-            <string>Disconnect</string>
-           </property>
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <widget class="QGroupBox" name="channelsGroup">
        <property name="title">
@@ -131,21 +32,21 @@
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="QPushButton" name="joinChannelButton">
-            <property name="text">
-             <string>Join</string>
-            </property>
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Join</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="leaveChannelButton">
-            <property name="text">
-             <string>Leave</string>
-            </property>
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Leave</string>
             </property>
            </widget>
           </item>
@@ -171,7 +72,7 @@
        <string>Status: Not connected</string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignmentFlag::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -182,8 +83,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
-     <height>22</height>
+     <width>578</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>
