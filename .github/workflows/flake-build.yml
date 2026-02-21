@@ -1,0 +1,58 @@
+name: "Build VoicePhone"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - os: ubuntu-latest
+            system: x86_64-linux
+          # Linux ARM64 (需要 QEMU 仿真，构建速度较慢)
+          - os: ubuntu-latest
+            system: aarch64-linux
+          # macOS Intel
+          - os: macos-15-intel
+            system: x86_64-darwin
+          # macOS Apple Silicon (M1/M2/M3)
+          - os: macos-latest
+            system: aarch64-darwin
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for aarch64-linux)
+      if: matrix.system == 'aarch64-linux'
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64
+
+      - name: Install Nix (Determinate Systems)
+      uses: DeterminateSystems/nix-installer-action@main
+      with:
+        extra-conf: |
+          experimental-features = nix-command flakes
+          extra-platforms = ${{ matrix.system == 'aarch64-linux' && 'aarch64-linux' || '' }}
+
+      - name: Build packages
+        run: |
+          nix build .#voicephone --print-build-logs
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: voicephone-${{ matrix.system }}
+          path: |
+            result/bin/voicephone
+            result/bin/voicephone-server
