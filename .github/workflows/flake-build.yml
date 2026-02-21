@@ -1,4 +1,4 @@
-name: "Build VoicePhone"
+name: "Build VoicePhone - nix"
 
 on:
   push:

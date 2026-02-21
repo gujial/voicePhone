@@ -1,4 +1,4 @@
-name: "Build VoicePhone"
+name: "Build VoicePhone - MSVC"
 
 on:
   push:
@@ -18,27 +18,21 @@ jobs:
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
-    # 1. 安装 Qt6
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
-        version: '6.6.0' # 你可以根据需要修改版本
+        version: '6.6.0'
         host: 'windows'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
-        # 对应你 CMake 中的组件
         modules: 'qtmultimedia qtsql' 
 
-    # 2. 使用 vcpkg 安装 Opus 和 OpenSSL
-    # 备注：vcpkg 默认集成了 pkg-config
     - name: Install dependencies via vcpkg
       run: |
         vcpkg install opus:x64-windows
         vcpkg install openssl:x64-windows
         vcpkg install pkgconf:x64-windows
 
-    # 3. 配置 CMake
-    # 我们需要将 vcpkg 的工具链文件传给 CMake
     - name: Configure CMake
       run: |
         cmake -B build -S . `
@@ -46,12 +40,9 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
           -DVCPKG_TARGET_TRIPLET=x64-windows
 
-    # 4. 执行构建
     - name: Build
       run: cmake --build build --config Release
 
-    # 5. 打包 (可选)
-    # 使用 windeployqt 收集 DLL 依赖，使程序可以在其他电脑运行
     - name: Package
       run: |
         mkdir dist
@@ -59,7 +50,6 @@ jobs:
         windeployqt --release --compiler-runtime dist/voicephone.exe
         windeployqt --release --compiler-runtime dist/voicephone-server.exe
 
-    # 6. 上传 Artifact
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
