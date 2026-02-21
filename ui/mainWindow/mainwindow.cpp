@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "audioengine.h"
-#include "../client/networkclient.h"
+#include "../../src/audioengine.h"
+#include "../../../client/networkclient.h"
 
 #include <QHostAddress>
 #include <QJsonArray>

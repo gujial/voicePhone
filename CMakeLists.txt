@@ -33,10 +33,10 @@ target_link_libraries(voicephone-server PRIVATE
 
 # 客户端可执行文件
 qt_add_executable(voicephone
-  src/main.cpp
-  src/mainwindow.cpp
-  src/mainwindow.h
-  src/mainwindow.ui
+  ui/main.cpp
+  ui/mainWindow/mainwindow.cpp
+  ui/mainWindow/mainwindow.h
+  ui/mainWindow/mainwindow.ui
   src/audioengine.cpp
   src/audioengine.h
   src/opuscodec.cpp
