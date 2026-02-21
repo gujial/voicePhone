@@ -11,11 +11,11 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget *parent, NetworkClient *networkClient,
-                       QString *serverIP)
+MainWindow::MainWindow(QWidget *parent, NetworkClient *networkClient)
     : QMainWindow(parent), ui(new Ui::MainWindow),
       m_audioEngine(new AudioEngine(this)), m_networkClient(networkClient),
-      m_localVoicePort(0), m_audioCounter(0), m_serverIP(serverIP) {
+      m_localVoicePort(networkClient->getUdpPort()), m_audioCounter(0),
+      m_serverIP(networkClient->getServerIP()) {
   ui->setupUi(this);
 
   // 连接信号
@@ -120,7 +120,7 @@ void MainWindow::onJoinedChannel(const QString &channel) {
   }
 
   // 启动音频引擎
-  QString serverIp = this->m_serverIP->trimmed();
+  QString serverIp = this->m_serverIP.trimmed();
   m_audioEngine->start(serverIp, m_localVoicePort, m_localVoicePort);
 
   updateUIState();

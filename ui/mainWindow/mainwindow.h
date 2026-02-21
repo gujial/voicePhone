@@ -17,8 +17,7 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  MainWindow(QWidget *parent = nullptr, NetworkClient *networkClient = nullptr,
-             QString *serverIP = nullptr);
+  MainWindow(QWidget *parent = nullptr, NetworkClient *networkClient = nullptr);
   ~MainWindow();
 
 private slots:
@@ -42,7 +41,7 @@ private:
   QString m_currentChannel;
   quint16 m_localVoicePort;
   quint64 m_audioCounter; // 用于音频加密的计数器
-  QString *m_serverIP;
+  QString m_serverIP;
 };
 
 #endif // MAINWINDOW_H

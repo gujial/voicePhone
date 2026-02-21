@@ -23,8 +23,6 @@ LoginDlg::LoginDlg(QWidget *parent, NetworkClient *networkClient)
   // 连接信号
   connect(ui->connectButton, &QPushButton::clicked, this,
           &LoginDlg::onConnectClicked);
-  connect(ui->disconnectButton, &QPushButton::clicked, this,
-          &LoginDlg::onDisconnectClicked);
 
   // 网络客户端信号
   connect(m_networkClient, &NetworkClient::connected, this,
@@ -152,7 +150,6 @@ void LoginDlg::updateUIState() {
   bool inChannel = !m_currentChannel.isEmpty();
 
   ui->connectButton->setEnabled(!connected);
-  ui->disconnectButton->setEnabled(connected);
   ui->serverIpEdit->setEnabled(!connected);
   ui->serverPortEdit->setEnabled(!connected);
   ui->usernameEdit->setEnabled(!connected);

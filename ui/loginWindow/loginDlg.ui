@@ -26,34 +26,6 @@
       <string>Server Connection</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="2" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QPushButton" name="connectButton">
-          <property name="text">
-           <string>Connect</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="disconnectButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Disconnect</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="serverPortEdit">
-        <property name="placeholderText">
-         <string>8888</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="serverIpEdit">
         <property name="placeholderText">
@@ -61,20 +33,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="passwordEdit">
-        <property name="echoMode">
-         <enum>QLineEdit::EchoMode::Password</enum>
-        </property>
-        <property name="placeholderText">
-         <string>Enter password</string>
+      <item row="3" column="0">
+       <widget class="QLabel" name="passwordLabel">
+        <property name="text">
+         <string>Password:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2" colspan="2">
-       <widget class="QCheckBox" name="registerCheckbox">
+      <item row="1" column="0">
+       <widget class="QLabel" name="usernameLabel">
         <property name="text">
-         <string>New User (Register)</string>
+         <string>Username:</string>
         </property>
        </widget>
       </item>
@@ -92,13 +61,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="passwordLabel">
-        <property name="text">
-         <string>Password:</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QLabel" name="portLabel">
         <property name="text">
@@ -106,10 +68,38 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="usernameLabel">
+      <item row="3" column="2" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="connectButton">
+          <property name="text">
+           <string>Connect</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="passwordEdit">
+        <property name="echoMode">
+         <enum>QLineEdit::EchoMode::Password</enum>
+        </property>
+        <property name="placeholderText">
+         <string>Enter password</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="serverPortEdit">
+        <property name="placeholderText">
+         <string>8888</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="2">
+       <widget class="QCheckBox" name="registerCheckbox">
         <property name="text">
-         <string>Username:</string>
+         <string>New User (Register)</string>
         </property>
        </widget>
       </item>
