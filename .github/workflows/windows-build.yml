@@ -34,19 +34,44 @@ jobs:
         vcpkg install pkgconf:x64-windows
 
     - name: Configure CMake
+      shell: pwsh
       run: |
+        $vcpkg_root = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows"
+        
+        # 告诉 MSVC 链接器去哪里找 .lib 文件
+        $env:LIB += ";$vcpkg_root/lib"
+        # 告诉 MSVC 编译器去哪里找头文件
+        $env:INCLUDE += ";$vcpkg_root/include"
+        # 告诉 pkg-config 去哪里找 .pc 文件
+        $env:PKG_CONFIG_PATH = "$vcpkg_root/lib/pkgconfig"
+        # 将 pkgconf 路径加入 PATH
+        $env:PATH = "$vcpkg_root/tools/pkgconf;$env:PATH"
+
         cmake -B build -S . `
           -DCMAKE_BUILD_TYPE=Release `
           -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
           -DVCPKG_TARGET_TRIPLET=x64-windows
 
     - name: Build
-      run: cmake --build build --config Release
+      shell: pwsh
+      run: |
+        $vcpkg_root = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows"
+        $env:LIB += ";$vcpkg_root/lib"
+        $env:INCLUDE += ";$vcpkg_root/include"
+        
+        cmake --build build --config Release
 
     - name: Package
+      shell: pwsh
       run: |
         mkdir dist
+        # 拷贝生成的 exe
         copy build/bin/Release/*.exe dist/
+        
+        # 拷贝第三方库的 DLL (Opus 和 OpenSSL)
+        copy "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/bin/*.dll" dist/
+        
+        # 执行 windeployqt 拷贝 Qt 依赖项
         windeployqt --release --compiler-runtime dist/voicephone.exe
         windeployqt --release --compiler-runtime dist/voicephone-server.exe
 
