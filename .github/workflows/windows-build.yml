@@ -33,25 +33,26 @@ jobs:
         vcpkg install openssl:x64-windows
         vcpkg install pkgconf:x64-windows
 
-    - name: Set Environment Variables
-      shell: pwsh
-      run: |
-        $vcpkg_root = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows"
-        
-        echo "LIB=$vcpkg_root/lib;$env:LIB" >> $env:GITHUB_ENV
-        echo "INCLUDE=$vcpkg_root/include;$env:INCLUDE" >> $env:GITHUB_ENV
-        echo "PKG_CONFIG_PATH=$vcpkg_root/lib/pkgconfig" >> $env:GITHUB_ENV
-        
-        echo "$vcpkg_root/tools/pkgconf" >> $env:GITHUB_PATH
-        echo "$vcpkg_root/bin" >> $env:GITHUB_PATH
-
     - name: Configure CMake
       shell: pwsh
       run: |
+        $vcpkg_root = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows"
+        $lib_path = "$vcpkg_root/lib"
+        $inc_path = "$vcpkg_root/include"
+        $pkg_config_exe = "$vcpkg_root/tools/pkgconf/pkgconf.exe"
+
+        # 使用 -DCMAKE_EXE_LINKER_FLAGS 直接告诉链接器去哪里找 .lib 文件
+        # 使用 -DCMAKE_CXX_FLAGS 确保编译器能找到头文件（应对 pkg-config 返回相对路径的情况）
         cmake -B build -S . `
           -DCMAKE_BUILD_TYPE=Release `
           -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
-          -DVCPKG_TARGET_TRIPLET=x64-windows
+          -DVCPKG_TARGET_TRIPLET=x64-windows `
+          -DPKG_CONFIG_EXECUTABLE="$pkg_config_exe" `
+          -DCMAKE_EXE_LINKER_FLAGS="/LIBPATH:`"$lib_path`"" `
+          -DCMAKE_CXX_FLAGS="/I`"$inc_path`"" `
+          "-DPKG_CONFIG_ARGN=--define-variable=prefix=$vcpkg_root"
+      env:
+        PKG_CONFIG_PATH: "${{ env.VCPKG_INSTALLATION_ROOT }}/installed/x64-windows/lib/pkgconfig"
 
     - name: Build
       run: cmake --build build --config Release
@@ -60,17 +61,17 @@ jobs:
       shell: pwsh
       run: |
         mkdir dist
-        # 1. 拷贝生成的 exe (考虑到不同生成的可能路径)
+        # 拷贝生成的 exe
         if (Test-Path "build/bin/Release/voicephone.exe") {
             copy build/bin/Release/*.exe dist/
         } elseif (Test-Path "build/Release/voicephone.exe") {
             copy build/Release/*.exe dist/
         }
-        
-        # 2. 拷贝 vcpkg 的 DLL (opus, openssl)
+
+        # 拷贝 vcpkg 的 DLL (Opus, OpenSSL 等)
         copy "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/bin/*.dll" dist/
-        
-        # 3. 运行 windeployqt
+
+        # 运行 windeployqt
         windeployqt --release --compiler-runtime dist/voicephone.exe
         windeployqt --release --compiler-runtime dist/voicephone-server.exe
 
