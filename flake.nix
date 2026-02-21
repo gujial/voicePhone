@@ -22,7 +22,6 @@
         buildDeps = with pkgs; [
           qt6.qtbase
           qt6.qtmultimedia
-          qt6.qtsql       # 对应 CMake 中的 Sql
           openssl         # 对应 CMake 中的 OpenSSL
           libopus         # 对应 CMake 中的 opus
         ] ++ lib.optional stdenv.isLinux pkgs.qt6.qtwayland; # 仅 Linux 需要 Wayland 支持
