@@ -10,7 +10,16 @@ int main(int argc, char *argv[])
     app.setApplicationVersion("1.0");
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("VoicePhone Server");
+    parser.setApplicationDescription(
+        "VoicePhone Server\n"
+        "\n用法: voicephone-server [选项]\n"
+        "\n可用选项:\n"
+        "  -c, --control-port <port>  指定客户端控制连接端口 (默认: 8888)\n"
+        "  -p, --voice-port <port>    指定UDP语音端口 (默认: 8889)\n"
+        "  -h, --help                 显示本帮助信息\n"
+        "  --version                  显示版本信息\n"
+        "\n如果未指定参数，服务器将使用默认端口启动。\n"
+    );
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -21,7 +30,6 @@ int main(int argc, char *argv[])
     QCommandLineOption voicePortOption(QStringList() << "p" << "voice-port",
         "Voice port for UDP audio (default: 8889)", "port", "8889");
     parser.addOption(voicePortOption);
-
     parser.process(app);
 
     quint16 controlPort = parser.value(controlPortOption).toUShort();
