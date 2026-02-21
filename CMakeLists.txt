@@ -65,3 +65,4 @@ set_target_properties(voicephone voicephone-server PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
+install(TARGETS voicephone voicephone-server DESTINATION bin)
